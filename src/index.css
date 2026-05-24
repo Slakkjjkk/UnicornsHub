@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,16 +8,17 @@
   box-sizing: border-box;
 }
 
+html {
+  background: #09090b;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(139, 92, 246, 0.16), transparent 32rem),
-    radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.1), transparent 26rem),
-    #09090b;
-  color: #fafafa;
-  font-family: Poppins, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #09090b;
+  color: #ffffff;
+  font-family: Manrope, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 button,
@@ -32,22 +33,22 @@ button {
 }
 
 ::selection {
-  background: rgba(139, 92, 246, 0.42);
+  background: rgba(217, 70, 239, 0.42);
 }
 
 @layer base {
   input,
   select,
   textarea {
-    @apply w-full rounded-xl border border-white/10 bg-zinc-950/70 px-4 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-violet-400 focus:ring-4 focus:ring-violet-500/15;
+    @apply w-full rounded-[1.35rem] border-2 border-white/10 bg-zinc-950/70 px-5 text-sm font-bold text-white outline-none transition placeholder:text-zinc-500 focus:border-cyan-300 focus:ring-4 focus:ring-cyan-300/20;
   }
 
   input,
   select {
-    @apply h-12;
+    @apply h-13;
   }
 
   textarea {
-    @apply min-h-28 resize-y py-3 leading-7;
+    @apply min-h-28 resize-y py-4 leading-7;
   }
 }

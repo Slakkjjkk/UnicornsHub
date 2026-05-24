@@ -1,37 +1,146 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Toaster } from 'react-hot-toast';
 import AddProjectModal from './components/AddProjectModal.jsx';
+import AuthModal from './components/AuthModal.jsx';
 import Filters from './components/Filters.jsx';
+import Footer from './components/Footer.jsx';
 import Header from './components/Header.jsx';
 import Hero from './components/Hero.jsx';
+import ProfileModal from './components/ProfileModal.jsx';
 import ProjectCard from './components/ProjectCard.jsx';
-import ProjectModal from './components/ProjectModal.jsx';
-import { mockProjects } from './data/mockData.js';
-import { useLocalStorage } from './hooks/useLocalStorage.js';
+import ProjectDetailsModal from './components/ProjectDetailsModal.jsx';
+import { isSupabaseConfigured, supabase } from './lib/supabaseClient.js';
+import { addProject, deleteProject, fetchProjects, toggleSaveProject } from './services/projectService.js';
+import { ensureProfile } from './services/profileService.js';
+import { getSafeErrorMessage } from './utils/errors.js';
+
+function userFacingError(message) {
+  const error = new Error(message);
+  error.isSafeForUser = true;
+  return error;
+}
 
 export default function App() {
-  const [projects, setProjects] = useLocalStorage('unicorns-hub-projects', mockProjects);
+  const { t } = useTranslation();
+  const feedRef = useRef(null);
+  const pageSize = 6;
+  const [projects, setProjects] = useState([]);
+  const [totalProjects, setTotalProjects] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStack, setSelectedStack] = useState('Todos');
   const [selectedDifficulty, setSelectedDifficulty] = useState('Todos');
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [sortBy, setSortBy] = useState('recentes');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [activeProfileId, setActiveProfileId] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isProjectsLoading, setIsProjectsLoading] = useState(true);
+  const [projectsError, setProjectsError] = useState('');
+
+  const loadProjects = useCallback(async () => {
+    setIsProjectsLoading(true);
+    setProjectsError('');
+
+    try {
+      const projectData = await fetchProjects(sortBy, user?.id, currentPage, pageSize);
+      setProjects(projectData.projects);
+      setTotalProjects(projectData.total);
+    } catch (error) {
+      setProjects([]);
+      setTotalProjects(0);
+      setProjectsError(getSafeErrorMessage(error, t, 'app.projectLoadError'));
+    } finally {
+      setIsProjectsLoading(false);
+    }
+  }, [currentPage, sortBy, t, user?.id]);
 
   useEffect(() => {
-    const projectsWithImages = projects.map((project) => {
-      if (project.imageUrl) {
-        return project;
+    loadProjects();
+  }, [loadProjects]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedStack, selectedDifficulty, sortBy]);
+
+  useEffect(() => {
+    setSelectedProject((currentProject) => {
+      if (!currentProject) {
+        return null;
       }
 
-      const mockProject = mockProjects.find((item) => item.id === project.id);
-      return mockProject?.imageUrl ? { ...project, imageUrl: mockProject.imageUrl } : project;
+      return projects.find((project) => project.id === currentProject.id) || currentProject;
+    });
+  }, [projects]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      return undefined;
+    }
+
+    const channel = supabase
+      .channel('projects-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
+        loadProjects();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'saved_projects' }, () => {
+        loadProjects();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [loadProjects]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setIsAuthLoading(false);
+      return undefined;
+    }
+
+    let isMounted = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (isMounted) {
+        const sessionUser = data.session?.user || null;
+        setUser(sessionUser);
+        if (sessionUser) {
+          ensureProfile(sessionUser)
+            .then(setProfile)
+            .catch(() => setProfile(null));
+        }
+        setIsAuthLoading(false);
+      }
     });
 
-    const hasMissingImages = projectsWithImages.some((project, index) => project.imageUrl !== projects[index].imageUrl);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const sessionUser = session?.user || null;
+      setUser(sessionUser);
+      setIsAuthLoading(false);
 
-    if (hasMissingImages) {
-      setProjects(projectsWithImages);
-    }
-  }, [projects, setProjects]);
+      if (sessionUser) {
+        setIsAuthModalOpen(false);
+        ensureProfile(sessionUser)
+          .then(setProfile)
+          .catch(() => setProfile(null));
+      } else {
+        setProfile(null);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const stacks = useMemo(() => {
     return [...new Set(projects.flatMap((project) => project.stack))].sort();
@@ -41,16 +150,25 @@ export default function App() {
     return [...new Set(projects.map((project) => project.difficulty))].sort();
   }, [projects]);
 
-  const filteredProjects = useMemo(() => {
+  const visibleProjects = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
     return projects.filter((project) => {
+      const searchableText = [
+        project.name,
+        project.repository,
+        project.owner,
+        project.profiles?.full_name,
+        project.summary,
+        project.stopPoint,
+        project.needs,
+      ]
+        .join(' ')
+        .toLowerCase();
+
       const matchesSearch =
         !normalizedSearch ||
-        [project.name, project.repository, project.owner, project.summary, project.stopPoint, project.needs]
-          .join(' ')
-          .toLowerCase()
-          .includes(normalizedSearch) ||
+        searchableText.includes(normalizedSearch) ||
         project.stack.some((tag) => tag.toLowerCase().includes(normalizedSearch));
 
       const matchesStack = selectedStack === 'Todos' || project.stack.includes(selectedStack);
@@ -60,75 +178,303 @@ export default function App() {
     });
   }, [projects, searchTerm, selectedStack, selectedDifficulty]);
 
-  const openProjects = projects.filter((project) => project.status === 'Buscando Mantenedor').length;
-  const adoptingProjects = projects.filter((project) => project.status === 'Em Processo de Adocao').length;
+  const totalPages = Math.max(1, Math.ceil(totalProjects / pageSize));
+  const canGoPrevious = currentPage > 1 && !isProjectsLoading;
+  const canGoNext = currentPage < totalPages && !isProjectsLoading;
 
-  function handleAddProject(project) {
-    setProjects((currentProjects) => [project, ...currentProjects]);
-  }
+  const getVerifiedUser = useCallback(async () => {
+    if (!isSupabaseConfigured || !user?.id) {
+      return null;
+    }
 
-  function clearFilters() {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error || !data.user?.id || data.user.id !== user.id) {
+      setUser(null);
+      setProfile(null);
+      return null;
+    }
+
+    return data.user;
+  }, [user?.id]);
+
+  const handleAddProject = useCallback(async (project) => {
+    const verifiedUser = await getVerifiedUser();
+
+    if (!verifiedUser) {
+      setIsAddModalOpen(false);
+      setIsAuthModalOpen(true);
+      throw userFacingError(t('app.loginRequired'));
+    }
+
+    await addProject(project, verifiedUser.id);
+    await loadProjects();
+  }, [getVerifiedUser, loadProjects, t]);
+
+  const handleToggleSave = useCallback(async (projectId) => {
+    const verifiedUser = await getVerifiedUser();
+
+    if (!verifiedUser) {
+      setIsAuthModalOpen(true);
+      throw userFacingError(t('projectCard.saveLoginRequired'));
+    }
+
+    const result = await toggleSaveProject(projectId, verifiedUser.id);
+
+    setProjects((currentProjects) =>
+      currentProjects.map((project) =>
+        project.id === projectId
+          ? {
+              ...project,
+              is_saved: result.is_saved,
+              adoptions_count: result.adoptions_count,
+            }
+          : project
+      )
+    );
+
+    setSelectedProject((currentProject) =>
+      currentProject?.id === projectId
+        ? {
+            ...currentProject,
+            is_saved: result.is_saved,
+            adoptions_count: result.adoptions_count,
+          }
+        : currentProject
+    );
+  }, [getVerifiedUser, t]);
+
+  const handleDeleteProject = useCallback(async (projectId) => {
+    const verifiedUser = await getVerifiedUser();
+    const targetProject = projects.find((project) => project.id === projectId);
+
+    if (!verifiedUser || targetProject?.userId !== verifiedUser.id) {
+      throw userFacingError(t('app.unauthorizedAction'));
+    }
+
+    await deleteProject(projectId, verifiedUser.id);
+    setProjects((currentProjects) => currentProjects.filter((project) => project.id !== projectId));
+    setSelectedProject((currentProject) => (currentProject?.id === projectId ? null : currentProject));
+    setTotalProjects((currentTotal) => Math.max(0, currentTotal - 1));
+  }, [getVerifiedUser, projects, t]);
+
+  const handlePageChange = useCallback((nextPage) => {
+    setCurrentPage(nextPage);
+    window.requestAnimationFrame(() => {
+      feedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      setUser(null);
+      return;
+    }
+
+    setIsAuthLoading(true);
+    await supabase.auth.signOut();
+    setIsAuthLoading(false);
+  }, []);
+
+  const handleOpenAddProject = useCallback(async () => {
+    const verifiedUser = await getVerifiedUser();
+
+    if (!verifiedUser) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    setIsAddModalOpen(true);
+  }, [getVerifiedUser]);
+
+  const handleOpenProfile = useCallback((profileId) => {
+    if (!profileId) {
+      return;
+    }
+
+    setActiveProfileId(profileId);
+    setIsProfileModalOpen(true);
+  }, []);
+
+  const clearFilters = useCallback(() => {
     setSelectedStack('Todos');
     setSelectedDifficulty('Todos');
-  }
+  }, []);
+
+  const handleProfileUpdated = useCallback((updatedProfile) => {
+    setProfile(updatedProfile);
+    loadProjects();
+  }, [loadProjects]);
 
   return (
-    <div className="min-h-screen bg-transparent text-zinc-100">
-      <Header
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        onOpenAddProject={() => setIsAddModalOpen(true)}
+    <div className="min-h-screen overflow-hidden bg-zinc-950 text-white">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4200,
+          style: {
+            background: '#18181b',
+            color: '#fff',
+            border: '1px solid #27272a',
+            borderRadius: '18px',
+            boxShadow: '0 18px 60px rgba(0,0,0,0.34)',
+            fontWeight: 700,
+          },
+          success: {
+            iconTheme: {
+              primary: '#7c3aed',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#d946ef',
+              secondary: '#fff',
+            },
+          },
+        }}
       />
+      <div className="pointer-events-none fixed left-[-10rem] top-[-12rem] h-[32rem] w-[32rem] rounded-full bg-violet-600/10 blur-3xl" />
+      <div className="pointer-events-none fixed right-[-12rem] top-16 h-[30rem] w-[30rem] rounded-full bg-fuchsia-600/10 blur-3xl" />
 
-      <Hero totalProjects={projects.length} openProjects={openProjects} adoptingProjects={adoptingProjects} />
+      <div className="relative">
+        <Header
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          onOpenAddProject={handleOpenAddProject}
+          user={user}
+          profile={profile}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
+          onOpenProfile={() => handleOpenProfile(user?.id)}
+          onLogout={handleLogout}
+          isAuthLoading={isAuthLoading}
+        />
 
-      <Filters
-        stacks={stacks}
-        difficulties={difficulties}
-        selectedStack={selectedStack}
-        selectedDifficulty={selectedDifficulty}
-        onStackChange={setSelectedStack}
-        onDifficultyChange={setSelectedDifficulty}
-        onClearFilters={clearFilters}
-      />
+        <Hero />
 
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-7 flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold text-white">Projetos para adocao</h2>
-            <p className="mt-2 text-sm text-zinc-400">
-              {filteredProjects.length} resultado{filteredProjects.length === 1 ? '' : 's'} encontrado
-              {filteredProjects.length === 1 ? '' : 's'}
+        <Filters
+          stacks={stacks}
+          difficulties={difficulties}
+          selectedStack={selectedStack}
+          selectedDifficulty={selectedDifficulty}
+          onStackChange={setSelectedStack}
+          onDifficultyChange={setSelectedDifficulty}
+          onClearFilters={clearFilters}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+        />
+
+        <main ref={feedRef} className="mx-auto max-w-7xl px-4 pb-20 pt-6 sm:px-6 lg:px-8">
+          <div className="mb-12 flex flex-col gap-4 rounded-[2rem] bg-zinc-900/70 p-8 shadow-[0_24px_90px_rgba(0,0,0,0.34)] ring-1 ring-white/10 backdrop-blur-xl sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.18em] text-cyan-200">{t('app.sectionEyebrow')}</p>
+              <h2 className="mt-2 text-4xl font-black tracking-tight text-white">{t('app.sectionTitle')}</h2>
+            </div>
+            <p className="text-sm font-bold text-zinc-400">
+              {isProjectsLoading
+                ? t('common.loadingProjects')
+                : t('common.projectCount', { count: visibleProjects.length })}
             </p>
           </div>
-        </div>
 
-        {filteredProjects.length ? (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {filteredProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} onSelect={setSelectedProject} />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-3xl bg-zinc-900/80 p-12 text-center shadow-2xl shadow-black/20 ring-1 ring-white/10">
-            <p className="text-xl font-bold text-white">Nenhum projeto encontrado</p>
-            <p className="mt-3 text-sm text-zinc-400">
-              Ajuste a busca, limpe os filtros ou doe um novo projeto para aumentar o catalogo.
-            </p>
-          </div>
-        )}
-      </main>
+          {projectsError ? (
+            <div className="rounded-[2rem] bg-fuchsia-500/10 p-6 text-fuchsia-100 ring-1 ring-fuchsia-300/20">
+              <p className="font-black">{t('app.dbErrorTitle')}</p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-fuchsia-100/80">{projectsError}</p>
+            </div>
+          ) : null}
 
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
+          {!projectsError && isProjectsLoading ? (
+            <div className="grid auto-rows-fr gap-10 md:grid-cols-2 xl:grid-cols-3">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="h-[520px] animate-pulse rounded-[2rem] bg-zinc-900/70 shadow-[0_24px_80px_rgba(0,0,0,0.32)] ring-1 ring-white/10"
+                />
+              ))}
+            </div>
+          ) : null}
 
-      <AddProjectModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAddProject={handleAddProject}
-      />
+          {!projectsError && !isProjectsLoading && visibleProjects.length ? (
+            <div className="grid auto-rows-fr gap-10 md:grid-cols-2 xl:grid-cols-3">
+              {visibleProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  currentUser={user}
+                  onOpenProfile={handleOpenProfile}
+                  onOpenDetails={setSelectedProject}
+                  onToggleSave={handleToggleSave}
+                  onDeleteProject={handleDeleteProject}
+                />
+              ))}
+            </div>
+          ) : null}
+
+          {!projectsError && !isProjectsLoading && totalProjects > pageSize ? (
+            <div className="mt-12 flex flex-col items-center justify-between gap-4 rounded-[2rem] bg-zinc-900/70 p-5 ring-1 ring-white/10 sm:flex-row">
+              <p className="text-sm font-bold text-zinc-400">
+                {t('pagination.pageIndicator', { current: currentPage, total: totalPages })}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={!canGoPrevious}
+                  className="rounded-full bg-white/[0.08] px-5 py-3 text-sm font-black text-zinc-200 ring-1 ring-white/10 transition hover:bg-white/[0.12] disabled:cursor-not-allowed disabled:text-zinc-600 disabled:hover:bg-white/[0.08]"
+                >
+                  {t('pagination.previous')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={!canGoNext}
+                  className="rounded-full bg-violet-600 px-5 py-3 text-sm font-black text-white shadow-xl shadow-violet-950/30 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 disabled:shadow-none"
+                >
+                  {t('pagination.next')}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {!projectsError && !isProjectsLoading && !visibleProjects.length ? (
+            <div className="rounded-[2.5rem] bg-zinc-900 p-12 text-center text-white shadow-[0_28px_90px_rgba(0,0,0,0.36)] ring-1 ring-white/10">
+              <p className="text-3xl font-black tracking-tight">{t('app.emptyTitle')}</p>
+              <p className="mx-auto mt-4 max-w-xl text-base font-semibold leading-7 text-zinc-400">
+                {t('app.emptyText')}
+              </p>
+            </div>
+          ) : null}
+        </main>
+
+        <Footer />
+
+        <AddProjectModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onAddProject={handleAddProject}
+        />
+
+        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+
+        <ProjectDetailsModal
+          project={selectedProject}
+          currentUser={user}
+          onClose={() => setSelectedProject(null)}
+          onOpenProfile={handleOpenProfile}
+          onToggleSave={handleToggleSave}
+          onDeleteProject={handleDeleteProject}
+        />
+
+        <ProfileModal
+          isOpen={isProfileModalOpen}
+          profileId={activeProfileId}
+          currentUser={user}
+          projects={projects}
+          onClose={() => setIsProfileModalOpen(false)}
+          onProfileUpdated={handleProfileUpdated}
+        />
+      </div>
     </div>
   );
 }

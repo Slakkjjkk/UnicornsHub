@@ -4,12 +4,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Poppins', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Manrope', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
-      colors: {
-        ink: '#09090b',
-        panel: '#18181b',
-        line: 'rgba(255, 255, 255, 0.1)',
+      spacing: {
+        13: '3.25rem',
       },
     },
   },

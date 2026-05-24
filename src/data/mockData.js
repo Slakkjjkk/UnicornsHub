@@ -6,6 +6,8 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
     owner: 'Felipe Andrade',
+    createdAt: '2025-10-20',
+    adoptions_count: 148,
     status: 'Buscando Mantenedor',
     difficulty: 'Avancado',
     stack: ['React', 'Node.js', 'PostgreSQL', 'Docker'],
@@ -25,6 +27,8 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80',
     owner: 'Marina Horta',
+    createdAt: '2025-07-12',
+    adoptions_count: 91,
     status: 'Buscando Mantenedor',
     difficulty: 'Intermediario',
     stack: ['TypeScript', 'Fastify', 'Prisma', 'SQLite'],
@@ -44,6 +48,8 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80',
     owner: 'Renato Lima',
+    createdAt: '2025-12-02',
+    adoptions_count: 236,
     status: 'Buscando Mantenedor',
     difficulty: 'Avancado',
     stack: ['Python', 'FastAPI', 'React', 'Qdrant'],
@@ -63,6 +69,8 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
     owner: 'Lucas Fontes',
+    createdAt: '2025-09-18',
+    adoptions_count: 317,
     status: 'Buscando Mantenedor',
     difficulty: 'Especialista',
     stack: ['Rust', 'Tauri', 'Svelte', 'SQLite'],
@@ -82,6 +90,8 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1559028012-481c04fa702d?auto=format&fit=crop&w=1200&q=80',
     owner: 'Bianca Santos',
+    createdAt: '2026-01-19',
+    adoptions_count: 64,
     status: 'Buscando Mantenedor',
     difficulty: 'Iniciante',
     stack: ['Vue', 'Firebase', 'Tailwind CSS'],
@@ -101,6 +111,8 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
     owner: 'Thiago Ramos',
+    createdAt: '2025-08-30',
+    adoptions_count: 123,
     status: 'Buscando Mantenedor',
     difficulty: 'Intermediario',
     stack: ['Go', 'Redis', 'Kubernetes'],

@@ -1,56 +1,51 @@
-import { HeartHandshake, ShieldCheck, Sparkles } from 'lucide-react';
+import { Rocket, Sparkles, TrendingUp, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-export default function Hero({ totalProjects, openProjects, adoptingProjects }) {
-  const stats = [
-    { label: 'Ideias esperando carinho', value: openProjects },
-    { label: 'Conversas iniciadas', value: adoptingProjects },
-    { label: 'Projetos no jardim', value: totalProjects },
-  ];
+export default function Hero() {
+  const { t } = useTranslation();
 
   return (
-    <section className="relative overflow-hidden">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.18fr_0.82fr] lg:px-8 lg:py-20">
-        <div className="flex flex-col justify-center">
-          <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-violet-400/20 bg-violet-500/10 px-4 py-2 text-xs font-semibold text-violet-100 shadow-lg shadow-violet-950/20">
-            <Sparkles className="h-3.5 w-3.5 text-violet-200" />
-            Todo bom projeto merece uma segunda temporada
+    <section className="relative overflow-hidden px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+      <div className="absolute left-8 top-12 h-32 w-32 rounded-full bg-violet-500/20 blur-3xl" />
+      <div className="absolute bottom-10 right-10 h-44 w-44 rounded-full bg-cyan-400/15 blur-3xl" />
+      <div className="absolute left-1/2 top-1/3 h-36 w-36 rounded-full bg-fuchsia-500/12 blur-3xl" />
+
+      <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-[2.5rem] bg-zinc-900/[0.88] p-8 text-white shadow-[0_28px_90px_rgba(0,0,0,0.4)] ring-1 ring-white/10 backdrop-blur-xl sm:p-10 lg:p-12">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-violet-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100 ring-1 ring-violet-300/15">
+            <Sparkles className="h-4 w-4 text-fuchsia-300" />
+            {t('hero.eyebrow')}
           </div>
 
-          <h2 className="max-w-4xl text-4xl font-bold tracking-normal text-white sm:text-6xl">
-            Acolha ideias brilhantes que precisam de voce.
+          <h2 className="max-w-4xl text-5xl font-black leading-[0.95] tracking-tight sm:text-7xl">
+            {t('hero.title')}
           </h2>
 
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300">
-            O Unicorns Hub aproxima criadores que querem soltar projetos com cuidado de pessoas prontas para dar
-            continuidade, lapidar a experiencia e transformar potencial parado em produto vivo.
+          <p className="mt-7 max-w-2xl text-lg font-semibold leading-8 text-zinc-300">
+            {t('hero.subtitle')}
           </p>
         </div>
 
-        <div className="grid gap-4 rounded-3xl bg-zinc-900/80 p-5 shadow-2xl shadow-black/30 ring-1 ring-white/10 backdrop-blur">
-          <div className="flex items-start gap-4 rounded-2xl bg-zinc-950/60 p-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200">
-              <HeartHandshake className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="font-semibold text-white">Escolha com contexto e calma</p>
-              <p className="mt-1 text-sm leading-6 text-zinc-400">
-                Veja o historico, o momento atual, a stack e o tipo de energia que cada projeto esta pedindo.
-              </p>
-            </div>
+        <div className="grid gap-6">
+          <div className="rounded-[2.5rem] bg-violet-600 p-8 text-white shadow-[0_28px_80px_rgba(124,58,237,0.22)] ring-1 ring-white/10 transition hover:-rotate-1">
+            <Rocket className="mb-8 h-12 w-12" />
+            <h3 className="text-3xl font-black tracking-tight">{t('hero.featureTitle')}</h3>
+            <p className="mt-4 text-base font-semibold leading-7 text-white/85">
+              {t('hero.featureText')}
+            </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            {stats.map((stat) => (
-              <div key={stat.label} className="rounded-2xl bg-zinc-950/70 p-4 shadow-inner shadow-black/20">
-                <p className="text-3xl font-bold text-white">{stat.value}</p>
-                <p className="mt-2 text-xs leading-5 text-zinc-400">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2 rounded-2xl bg-violet-500/10 px-4 py-3 text-sm text-violet-100">
-            <ShieldCheck className="h-4 w-4" />
-            Seus favoritos locais ficam salvos no navegador.
+          <div className="grid grid-cols-2 gap-6">
+            <div className="rounded-[2rem] bg-cyan-300/90 p-7 text-zinc-950 shadow-[0_24px_70px_rgba(34,211,238,0.16)] transition hover:-translate-y-2 hover:rotate-1">
+              <TrendingUp className="mb-5 h-8 w-8" />
+              <p className="text-4xl font-black tracking-tight">{t('hero.traction')}</p>
+              <p className="mt-2 text-sm font-bold">{t('hero.tractionText')}</p>
+            </div>
+            <div className="rounded-[2rem] bg-fuchsia-500/85 p-7 text-white shadow-[0_24px_70px_rgba(217,70,239,0.18)] ring-1 ring-white/10 transition hover:-translate-y-2 hover:-rotate-1">
+              <Zap className="mb-5 h-8 w-8" />
+              <p className="text-4xl font-black tracking-tight">{t('hero.scale')}</p>
+              <p className="mt-2 text-sm font-bold text-white/85">{t('hero.scaleText')}</p>
+            </div>
           </div>
         </div>
       </div>
