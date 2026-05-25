@@ -160,41 +160,41 @@ export default function AddProjectModal({ isOpen, onClose, onAddProject }) {
     !isSubmitting;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/85 px-4 py-8 backdrop-blur-xl">
-      <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] bg-zinc-900/95 text-white shadow-[0_30px_100px_rgba(0,0,0,0.58)] ring-1 ring-white/10 backdrop-blur-xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between bg-zinc-900/90 p-7 backdrop-blur">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 px-4 py-8 font-jetbrains-mono backdrop-blur-sm">
+      <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto border border-zinc-800 bg-black text-zinc-400">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-800 bg-black/95 p-5">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-cyan-200">{t('addProject.eyebrow')}</p>
-            <h2 className="mt-1 text-3xl font-black tracking-tight">{t('addProject.title')}</h2>
+            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">{t('addProject.eyebrow')}</p>
+            <h2 className="mt-2 text-2xl font-bold uppercase tracking-widest text-white">{t('addProject.title')}</h2>
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white shadow-lg transition hover:-translate-y-1 hover:rotate-6 hover:bg-fuchsia-500"
+            className="flex h-10 w-10 items-center justify-center text-white transition hover:text-zinc-400"
             aria-label={t('addProject.close')}
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-6 p-7">
+        <form onSubmit={handleSubmit} className="grid gap-8 p-5 lg:p-8">
           <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
-            <div className="rounded-[1.8rem] bg-zinc-950 p-4 text-white shadow-2xl shadow-black/30 ring-1 ring-white/10">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[1.4rem] bg-zinc-950 shadow-inner shadow-black/40">
+            <div className="border border-zinc-800 bg-black p-3 text-white">
+              <div className="relative aspect-[4/5] overflow-hidden border border-zinc-900 bg-black">
                 {form.image ? (
                   <img
                     src={form.image}
                     alt={t('addProject.previewAlt')}
                     loading="lazy"
                     decoding="async"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover grayscale transition duration-300 hover:grayscale-0"
                   />
                 ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-4 bg-zinc-900 p-8 text-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-[1.6rem] bg-white/10">
-                      <ImagePlus className="h-10 w-10 text-cyan-100" />
+                  <div className="flex h-full flex-col items-center justify-center gap-4 bg-black p-8 text-center">
+                    <div className="flex h-20 w-20 items-center justify-center border border-zinc-800">
+                      <ImagePlus className="h-10 w-10 text-zinc-600" />
                     </div>
-                    <p className="text-lg font-black tracking-tight">{t('addProject.coverPrompt')}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">{t('addProject.coverPrompt')}</p>
                   </div>
                 )}
               </div>
@@ -210,7 +210,7 @@ export default function AddProjectModal({ isOpen, onClose, onAddProject }) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="mt-4 flex w-full items-center justify-center gap-3 rounded-[1.4rem] bg-violet-600 px-5 py-4 text-sm font-black text-white shadow-xl shadow-violet-500/20 transition-colors hover:bg-violet-700"
+                className="mt-4 flex w-full items-center justify-center gap-3 border border-zinc-800 px-5 py-4 text-xs font-bold uppercase tracking-widest text-sky-400 transition hover:border-sky-400 hover:text-white"
               >
                 <UploadCloud className="h-5 w-5" />
                 {fileName || t('addProject.upload')}
@@ -234,7 +234,7 @@ export default function AddProjectModal({ isOpen, onClose, onAddProject }) {
                     placeholder={t('addProject.repositoryPlaceholder')}
                     maxLength={MAX_REPOSITORY_URL_LENGTH}
                     aria-invalid={Boolean(repositoryError)}
-                    className={repositoryError ? 'border-fuchsia-400 focus:border-fuchsia-400 focus:ring-fuchsia-400/20' : ''}
+                    className={repositoryError ? 'border-zinc-300 focus:border-zinc-300' : ''}
                     required
                   />
                   {repositoryError ? <FieldHint tone="error">{repositoryError}</FieldHint> : null}
@@ -291,9 +291,9 @@ export default function AddProjectModal({ isOpen, onClose, onAddProject }) {
             </div>
           </div>
 
-          <div className="flex flex-col-reverse gap-3 border-t-2 border-white/10 pt-6 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 border-t border-zinc-800 pt-6 sm:flex-row sm:justify-end">
             {error ? (
-              <p className="rounded-[1.35rem] bg-fuchsia-500/10 px-4 py-3 text-sm font-bold leading-6 text-fuchsia-100 ring-1 ring-fuchsia-300/20 sm:mr-auto">
+              <p className="border border-zinc-800 px-4 py-3 text-sm font-bold leading-6 text-zinc-300 sm:mr-auto">
                 {error}
               </p>
             ) : null}
@@ -301,14 +301,14 @@ export default function AddProjectModal({ isOpen, onClose, onAddProject }) {
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="rounded-full px-6 py-4 text-sm font-black text-zinc-400 transition hover:bg-white/[0.08]"
+              className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-zinc-500 transition hover:text-white"
             >
               {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-violet-600 px-7 py-4 text-sm font-black text-white shadow-xl shadow-violet-500/20 transition-colors hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400 disabled:opacity-70 disabled:shadow-none"
+              className="inline-flex items-center justify-center gap-2 border border-zinc-700 px-7 py-4 text-xs font-bold uppercase tracking-widest text-sky-400 transition hover:border-sky-400 hover:text-white disabled:cursor-not-allowed disabled:border-zinc-900 disabled:text-zinc-700"
             >
               <Rocket className="h-4 w-4" />
               {isSubmitting ? t('addProject.submitting') : t('addProject.submit')}
@@ -322,7 +322,7 @@ export default function AddProjectModal({ isOpen, onClose, onAddProject }) {
 
 function Field({ label, children }) {
   return (
-    <label className="grid gap-2 text-sm font-black text-zinc-200">
+    <label className="grid gap-2 text-xs font-bold uppercase tracking-widest text-white">
       {label}
       <div className="contents">{children}</div>
     </label>
@@ -330,7 +330,7 @@ function Field({ label, children }) {
 }
 
 function FieldHint({ children, tone = 'default' }) {
-  const toneClass = tone === 'error' ? 'text-fuchsia-200' : 'text-zinc-500';
+  const toneClass = tone === 'error' ? 'text-zinc-300' : 'text-zinc-500';
 
   return <p className={`text-xs font-bold leading-5 ${toneClass}`}>{children}</p>;
 }
@@ -339,7 +339,7 @@ function CharacterCounter({ count, max, label }) {
   const isNearLimit = count >= max * 0.9;
 
   return (
-    <p className={`text-right text-xs font-bold ${isNearLimit ? 'text-fuchsia-200' : 'text-zinc-500'}`}>
+    <p className={`text-right text-xs font-bold uppercase tracking-widest ${isNearLimit ? 'text-zinc-300' : 'text-zinc-500'}`}>
       {label}
     </p>
   );

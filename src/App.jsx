@@ -307,36 +307,34 @@ export default function App() {
   }, [loadProjects]);
 
   return (
-    <div className="min-h-screen overflow-hidden bg-zinc-950 text-white">
+    <div className="min-h-screen overflow-hidden bg-black font-jetbrains-mono text-zinc-400">
       <Toaster
         position="top-right"
         toastOptions={{
           duration: 4200,
           style: {
-            background: '#18181b',
+            background: '#000000',
             color: '#fff',
             border: '1px solid #27272a',
-            borderRadius: '18px',
-            boxShadow: '0 18px 60px rgba(0,0,0,0.34)',
-            fontWeight: 700,
+            borderRadius: '0',
+            boxShadow: 'none',
+            fontFamily: '"JetBrains Mono", monospace',
+            fontWeight: 600,
           },
           success: {
             iconTheme: {
-              primary: '#7c3aed',
+              primary: '#38bdf8',
               secondary: '#fff',
             },
           },
           error: {
             iconTheme: {
-              primary: '#d946ef',
+              primary: '#f4f4f5',
               secondary: '#fff',
             },
           },
         }}
       />
-      <div className="pointer-events-none fixed left-[-10rem] top-[-12rem] h-[32rem] w-[32rem] rounded-full bg-violet-600/10 blur-3xl" />
-      <div className="pointer-events-none fixed right-[-12rem] top-16 h-[30rem] w-[30rem] rounded-full bg-fuchsia-600/10 blur-3xl" />
-
       <div className="relative">
         <Header
           searchTerm={searchTerm}
@@ -364,13 +362,13 @@ export default function App() {
           onSortChange={setSortBy}
         />
 
-        <main ref={feedRef} className="mx-auto max-w-7xl px-4 pb-20 pt-6 sm:px-6 lg:px-8">
-          <div className="mb-12 flex flex-col gap-4 rounded-[2rem] bg-zinc-900/70 p-8 shadow-[0_24px_90px_rgba(0,0,0,0.34)] ring-1 ring-white/10 backdrop-blur-xl sm:flex-row sm:items-end sm:justify-between">
+        <main ref={feedRef} className="mx-auto max-w-6xl px-4 pb-20 pt-10 sm:px-6 lg:px-8">
+          <div className="mb-10 flex flex-col gap-4 border-b border-zinc-800 pb-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.18em] text-cyan-200">{t('app.sectionEyebrow')}</p>
-              <h2 className="mt-2 text-4xl font-black tracking-tight text-white">{t('app.sectionTitle')}</h2>
+              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">{t('app.sectionEyebrow')}</p>
+              <h2 className="mt-3 text-2xl font-bold uppercase tracking-widest text-white">{t('app.sectionTitle')}</h2>
             </div>
-            <p className="text-sm font-bold text-zinc-400">
+            <p className="text-xs uppercase tracking-widest text-zinc-500">
               {isProjectsLoading
                 ? t('common.loadingProjects')
                 : t('common.projectCount', { count: visibleProjects.length })}
@@ -378,25 +376,25 @@ export default function App() {
           </div>
 
           {projectsError ? (
-            <div className="rounded-[2rem] bg-fuchsia-500/10 p-6 text-fuchsia-100 ring-1 ring-fuchsia-300/20">
-              <p className="font-black">{t('app.dbErrorTitle')}</p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-fuchsia-100/80">{projectsError}</p>
+            <div className="border-t border-zinc-800 py-6 text-zinc-400">
+              <p className="font-bold uppercase tracking-widest text-white">{t('app.dbErrorTitle')}</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-500">{projectsError}</p>
             </div>
           ) : null}
 
           {!projectsError && isProjectsLoading ? (
-            <div className="grid auto-rows-fr gap-10 md:grid-cols-2 xl:grid-cols-3">
-              {[1, 2, 3].map((item) => (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((item) => (
                 <div
                   key={item}
-                  className="h-[520px] animate-pulse rounded-[2rem] bg-zinc-900/70 shadow-[0_24px_80px_rgba(0,0,0,0.32)] ring-1 ring-white/10"
+                  className="h-96 animate-pulse border border-zinc-800"
                 />
               ))}
             </div>
           ) : null}
 
           {!projectsError && !isProjectsLoading && visibleProjects.length ? (
-            <div className="grid auto-rows-fr gap-10 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {visibleProjects.map((project) => (
                 <ProjectCard
                   key={project.id}
@@ -412,8 +410,8 @@ export default function App() {
           ) : null}
 
           {!projectsError && !isProjectsLoading && totalProjects > pageSize ? (
-            <div className="mt-12 flex flex-col items-center justify-between gap-4 rounded-[2rem] bg-zinc-900/70 p-5 ring-1 ring-white/10 sm:flex-row">
-              <p className="text-sm font-bold text-zinc-400">
+            <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-zinc-800 pt-6 sm:flex-row">
+              <p className="text-xs uppercase tracking-widest text-zinc-500">
                 {t('pagination.pageIndicator', { current: currentPage, total: totalPages })}
               </p>
               <div className="flex gap-3">
@@ -421,7 +419,7 @@ export default function App() {
                   type="button"
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={!canGoPrevious}
-                  className="rounded-full bg-white/[0.08] px-5 py-3 text-sm font-black text-zinc-200 ring-1 ring-white/10 transition hover:bg-white/[0.12] disabled:cursor-not-allowed disabled:text-zinc-600 disabled:hover:bg-white/[0.08]"
+                  className="px-0 py-2 text-xs font-bold uppercase tracking-widest text-white transition hover:text-zinc-400 disabled:cursor-not-allowed disabled:text-zinc-700"
                 >
                   {t('pagination.previous')}
                 </button>
@@ -429,7 +427,7 @@ export default function App() {
                   type="button"
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={!canGoNext}
-                  className="rounded-full bg-violet-600 px-5 py-3 text-sm font-black text-white shadow-xl shadow-violet-950/30 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 disabled:shadow-none"
+                  className="px-0 py-2 text-xs font-bold uppercase tracking-widest text-white transition hover:text-zinc-400 disabled:cursor-not-allowed disabled:text-zinc-700"
                 >
                   {t('pagination.next')}
                 </button>
@@ -438,9 +436,9 @@ export default function App() {
           ) : null}
 
           {!projectsError && !isProjectsLoading && !visibleProjects.length ? (
-            <div className="rounded-[2.5rem] bg-zinc-900 p-12 text-center text-white shadow-[0_28px_90px_rgba(0,0,0,0.36)] ring-1 ring-white/10">
-              <p className="text-3xl font-black tracking-tight">{t('app.emptyTitle')}</p>
-              <p className="mx-auto mt-4 max-w-xl text-base font-semibold leading-7 text-zinc-400">
+            <div className="border-t border-zinc-800 py-16 text-center">
+              <p className="text-2xl font-bold uppercase tracking-widest text-white">{t('app.emptyTitle')}</p>
+              <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-zinc-500">
                 {t('app.emptyText')}
               </p>
             </div>

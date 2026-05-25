@@ -23,28 +23,28 @@ export default function Header({
   }
 
   return (
-    <header className="sticky top-0 z-30 bg-zinc-950/[0.84] backdrop-blur-2xl">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+    <header className="sticky top-0 z-30 border-b border-zinc-900 bg-black/95 font-jetbrains-mono backdrop-blur">
+      <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <div className="flex items-center gap-4">
           <UnicornHubLogo />
-          <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">{t('common.appName')}</h1>
+          <h1 className="text-lg font-bold uppercase tracking-widest text-white sm:text-xl">{t('common.appName')}</h1>
         </div>
 
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:max-w-4xl">
           <label className="relative flex-1">
-            <Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-cyan-200" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
             <input
               value={searchTerm}
               onChange={(event) => onSearchChange(event.target.value)}
               placeholder={t('header.searchPlaceholder')}
-              className="h-14 rounded-full border-2 border-white/10 bg-white/[0.08] pl-13 pr-5 text-white placeholder:text-zinc-500 focus:border-cyan-300 focus:ring-cyan-300/20"
+              className="h-12 border border-zinc-800 bg-black pl-11 pr-4 text-xs font-medium uppercase tracking-widest text-white placeholder:text-zinc-600 focus:border-sky-400"
             />
           </label>
 
           <select
             value={i18n.language}
             onChange={handleLanguageChange}
-            className="h-14 w-full rounded-full border-2 border-white/10 bg-white/[0.08] px-4 text-sm font-black text-white outline-none transition focus:border-cyan-300 focus:ring-4 focus:ring-cyan-300/20 sm:w-24"
+            className="h-12 w-full border border-zinc-800 bg-black px-4 text-xs font-bold uppercase tracking-widest text-white outline-none transition focus:border-sky-400 sm:w-24"
             aria-label={t('header.languageLabel')}
           >
             <option value="pt">PT</option>
@@ -55,18 +55,18 @@ export default function Header({
           <button
             type="button"
             onClick={onOpenAddProject}
-            className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-violet-600 px-7 text-sm font-black text-white shadow-[0_14px_38px_rgba(124,58,237,0.22)] transition hover:-translate-y-0.5 hover:bg-violet-700"
+            className="inline-flex h-12 items-center justify-center gap-2 border border-zinc-700 px-5 text-xs font-bold uppercase tracking-widest text-white transition hover:border-sky-400 hover:text-sky-400"
           >
-            <Rocket className="h-5 w-5" />
+            <Rocket className="h-4 w-4" />
             {t('common.submitProject')}
           </button>
 
           {user ? (
-            <div className="flex items-center gap-2 rounded-full bg-white/[0.08] p-1.5 ring-1 ring-white/10">
+            <div className="flex items-center gap-2 border border-zinc-800 p-1.5">
               <button
                 type="button"
                 onClick={onOpenProfile}
-                className="flex items-center gap-2 rounded-full pl-1.5 pr-2 transition hover:bg-white/[0.08]"
+                className="flex items-center gap-2 pl-1.5 pr-2 transition hover:text-sky-400"
                 aria-label={t('header.openMyProfile')}
               >
                 {avatarUrl ? (
@@ -75,20 +75,20 @@ export default function Header({
                     alt={userName}
                     loading="lazy"
                     decoding="async"
-                    className="h-10 w-10 rounded-full object-cover ring-1 ring-white/20"
+                    className="h-9 w-9 border border-zinc-800 object-cover grayscale transition hover:grayscale-0"
                   />
                 ) : (
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-cyan-100 ring-1 ring-white/10">
+                  <span className="flex h-9 w-9 items-center justify-center border border-zinc-800 bg-black text-zinc-500">
                     <UserRound className="h-5 w-5" />
                   </span>
                 )}
-                <span className="hidden max-w-32 truncate text-xs font-black text-white lg:block">{userName}</span>
+                <span className="hidden max-w-32 truncate text-xs font-bold uppercase tracking-widest text-white lg:block">{userName}</span>
               </button>
               <button
                 type="button"
                 onClick={onLogout}
                 disabled={isAuthLoading}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-xs font-black text-zinc-300 transition hover:bg-white/[0.08] hover:text-white disabled:cursor-not-allowed disabled:text-zinc-600"
+                className="inline-flex h-9 items-center justify-center gap-2 px-3 text-xs font-bold uppercase tracking-widest text-zinc-500 transition hover:text-white disabled:cursor-not-allowed disabled:text-zinc-700"
               >
                 <LogOut className="h-4 w-4" />
                 {t('common.logout')}
@@ -98,7 +98,7 @@ export default function Header({
             <button
               type="button"
               onClick={onOpenAuth}
-              className="inline-flex h-14 items-center justify-center rounded-full bg-white/[0.08] px-6 text-sm font-black text-cyan-100 ring-1 ring-white/10 transition hover:-translate-y-0.5 hover:bg-white/[0.12]"
+              className="inline-flex h-12 items-center justify-center border border-zinc-800 px-5 text-xs font-bold uppercase tracking-widest text-sky-400 transition hover:border-sky-400 hover:text-white"
             >
               {t('common.login')}
             </button>
@@ -111,12 +111,12 @@ export default function Header({
 
 function UnicornHubLogo() {
   return (
-    <div className="relative flex h-16 w-16 items-center justify-center rounded-[1.55rem] bg-zinc-900/90 shadow-[0_18px_54px_rgba(124,58,237,0.2)] ring-1 ring-white/10">
-      <div className="absolute inset-0 rounded-[1.55rem] bg-violet-600/10" />
+    <div className="relative flex h-12 w-12 items-center justify-center border border-zinc-800 bg-black">
+      <div className="absolute inset-0 bg-zinc-950" />
       <svg
         aria-hidden="true"
         viewBox="0 0 64 64"
-        className="relative h-12 w-12 overflow-visible"
+        className="relative h-9 w-9 overflow-visible grayscale"
         fill="none"
       >
         <path d="M18 40C21 28 30 21 43 18C38 26 37 34 44 44C34 49 25 48 18 40Z" fill="#c4b5fd" />

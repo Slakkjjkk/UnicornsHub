@@ -4,6 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        'jetbrains-mono': ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
         sans: ['Manrope', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       spacing: {

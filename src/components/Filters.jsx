@@ -21,10 +21,10 @@ export default function Filters({
   ];
 
   return (
-    <section className="px-4 pb-8 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-5 rounded-[2.25rem] bg-white/[0.06] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)] ring-1 ring-white/10 backdrop-blur-2xl">
-        <div className="flex items-center gap-3 px-2 text-sm font-black text-white">
-          <span className="flex h-12 w-12 items-center justify-center rounded-[1.2rem] bg-violet-600 text-white shadow-lg shadow-violet-500/15">
+    <section className="border-b border-zinc-900 px-4 py-8 font-jetbrains-mono sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-5">
+        <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-white">
+          <span className="flex h-10 w-10 items-center justify-center border border-zinc-800 text-zinc-500">
             <SlidersHorizontal className="h-5 w-5" />
           </span>
           {t('filters.title')}
@@ -50,7 +50,7 @@ export default function Filters({
               <button
                 type="button"
                 onClick={onClearFilters}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white/10 px-5 text-sm font-black text-cyan-100 ring-1 ring-white/10 transition hover:-translate-y-0.5 hover:bg-fuchsia-500/25"
+                className="inline-flex h-12 items-center justify-center gap-2 border border-zinc-800 px-5 text-xs font-bold uppercase tracking-widest text-sky-400 transition hover:border-sky-400 hover:text-white"
               >
                 <Zap className="h-4 w-4" />
                 {t('filters.clear')}
@@ -58,7 +58,7 @@ export default function Filters({
             ) : null}
           </div>
 
-          <div className="flex flex-wrap gap-2 rounded-full bg-zinc-950/55 p-1.5 ring-1 ring-white/10">
+          <div className="flex flex-wrap gap-5 border-t border-zinc-800 pt-4 xl:border-t-0 xl:pt-0">
             {sortOptions.map((option) => {
               const isActive = sortBy === option.value;
 
@@ -67,10 +67,10 @@ export default function Filters({
                   key={option.value}
                   type="button"
                   onClick={() => onSortChange(option.value)}
-                  className={`rounded-full px-4 py-2.5 text-xs font-black transition ${
+                  className={`px-0 py-2 text-xs font-bold uppercase tracking-widest transition ${
                     isActive
-                      ? 'bg-white text-zinc-950 shadow-lg shadow-cyan-300/10'
-                      : 'text-zinc-400 hover:bg-white/[0.08] hover:text-white'
+                      ? 'text-white underline underline-offset-4'
+                      : 'text-zinc-500 hover:text-white'
                   }`}
                 >
                   {option.label}

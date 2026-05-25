@@ -45,7 +45,6 @@ export default function AuthModal({ isOpen, onClose }) {
       return t('auth.rateLimit');
     }
 
-    console.error('[auth]', message);
     return t('common.genericError');
   }
 
@@ -157,16 +156,16 @@ export default function AuthModal({ isOpen, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/85 px-4 py-8 backdrop-blur-xl">
-      <div className="w-full max-w-lg overflow-hidden rounded-[2rem] bg-zinc-900/95 text-white shadow-[0_30px_100px_rgba(0,0,0,0.58)] ring-1 ring-white/10">
-        <div className="flex items-start justify-between gap-4 p-7">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 px-4 py-8 font-jetbrains-mono backdrop-blur-sm">
+      <div className="w-full max-w-lg overflow-hidden border border-zinc-800 bg-black text-zinc-400">
+        <div className="flex items-start justify-between gap-4 border-b border-zinc-800 p-5">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/[0.08] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100 ring-1 ring-white/10">
-              <Sparkles className="h-4 w-4 text-fuchsia-300" />
+            <div className="mb-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-sky-400">
+              <Sparkles className="h-4 w-4" />
               {t('auth.eyebrow')}
             </div>
-            <h2 className="text-3xl font-black tracking-tight">{t('auth.title')}</h2>
-            <p className="mt-3 text-sm font-semibold leading-6 text-zinc-400">
+            <h2 className="text-2xl font-bold uppercase tracking-widest text-white">{t('auth.title')}</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-400">
               {t('auth.subtitle')}
             </p>
           </div>
@@ -174,15 +173,15 @@ export default function AuthModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:-translate-y-0.5 hover:bg-fuchsia-500"
+            className="flex h-10 w-10 shrink-0 items-center justify-center text-white transition hover:text-zinc-400"
             aria-label={t('auth.close')}
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="px-7 pb-7">
-          <div className="mb-5 grid grid-cols-3 rounded-full bg-zinc-950/70 p-1.5 ring-1 ring-white/10">
+        <div className="px-5 pb-5">
+          <div className="mb-5 grid grid-cols-3 gap-3 border-b border-zinc-800 pb-4">
             {authTabs.map((tab) => (
               <button
                 key={tab.id}
@@ -192,8 +191,8 @@ export default function AuthModal({ isOpen, onClose }) {
                   setError('');
                   setSuccess('');
                 }}
-                className={`rounded-full px-4 py-3 text-sm font-black transition ${
-                  mode === tab.id ? 'bg-white text-zinc-950' : 'text-zinc-400 hover:text-white'
+                className={`px-0 py-3 text-xs font-bold uppercase tracking-widest transition ${
+                  mode === tab.id ? 'text-white underline underline-offset-4' : 'text-zinc-500 hover:text-white'
                 }`}
               >
                 {tab.label}
@@ -205,65 +204,65 @@ export default function AuthModal({ isOpen, onClose }) {
             type="button"
             onClick={handleGoogleLogin}
             disabled={isLoading || !isSupabaseConfigured}
-            className="mb-5 flex h-14 w-full items-center justify-center gap-3 rounded-full bg-white px-5 text-sm font-black text-zinc-950 shadow-xl shadow-cyan-400/10 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
+            className="mb-5 flex h-14 w-full items-center justify-center gap-3 border border-zinc-700 bg-black px-5 text-xs font-bold uppercase tracking-widest text-white transition hover:border-sky-400 hover:text-sky-400 disabled:cursor-not-allowed disabled:border-zinc-900 disabled:text-zinc-700"
           >
             {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <GoogleLogo />}
             {t('auth.google')}
           </button>
 
-          <div className="mb-5 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-zinc-500">
-            <span className="h-px flex-1 bg-white/10" />
+          <div className="mb-5 flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-zinc-500">
+            <span className="h-px flex-1 bg-zinc-800" />
             {mode === 'reset' ? t('auth.resetDivider') : t('auth.emailDivider')}
-            <span className="h-px flex-1 bg-white/10" />
+            <span className="h-px flex-1 bg-zinc-800" />
           </div>
 
           <form onSubmit={handleEmailAuth} className="grid gap-4">
-            <label className="grid gap-2 text-sm font-black text-zinc-200">
+            <label className="grid gap-2 text-xs font-bold uppercase tracking-widest text-white">
               {t('auth.email')}
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-cyan-200" />
+                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
                 <input
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder={t('auth.emailPlaceholder')}
                   maxLength={160}
-                  className={`pl-12 ${email && !isEmailValid ? 'border-fuchsia-400 focus:border-fuchsia-400' : ''}`}
+                  className={`pl-11 ${email && !isEmailValid ? 'border-zinc-300 focus:border-zinc-300' : ''}`}
                 />
               </div>
             </label>
 
             {mode !== 'reset' ? (
-              <label className="grid gap-2 text-sm font-black text-zinc-200">
+              <label className="grid gap-2 text-xs font-bold uppercase tracking-widest text-white">
                 {t('auth.password')}
                 <div className="relative">
-                  <Lock className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-cyan-200" />
+                  <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
                   <input
                     type="password"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder={t('auth.passwordPlaceholder')}
                     maxLength={128}
-                    className={`pl-12 ${password && !isPasswordValid ? 'border-fuchsia-400 focus:border-fuchsia-400' : ''}`}
+                    className={`pl-11 ${password && !isPasswordValid ? 'border-zinc-300 focus:border-zinc-300' : ''}`}
                   />
                 </div>
               </label>
             ) : null}
 
             {!isSupabaseConfigured ? (
-              <p className="rounded-[1.35rem] bg-fuchsia-500/10 px-4 py-3 text-sm font-bold leading-6 text-fuchsia-100 ring-1 ring-fuchsia-300/20">
+              <p className="border border-zinc-800 px-4 py-3 text-sm font-bold leading-6 text-zinc-300">
                 {t('auth.configMissing')}
               </p>
             ) : null}
 
             {error ? (
-              <p className="rounded-[1.35rem] bg-fuchsia-500/10 px-4 py-3 text-sm font-bold leading-6 text-fuchsia-100 ring-1 ring-fuchsia-300/20">
+              <p className="border border-zinc-800 px-4 py-3 text-sm font-bold leading-6 text-zinc-300">
                 {error}
               </p>
             ) : null}
 
             {success ? (
-              <p className="rounded-[1.35rem] bg-cyan-400/10 px-4 py-3 text-sm font-bold leading-6 text-cyan-100 ring-1 ring-cyan-300/20">
+              <p className="border border-zinc-800 px-4 py-3 text-sm font-bold leading-6 text-white">
                 {success}
               </p>
             ) : null}
@@ -271,7 +270,7 @@ export default function AuthModal({ isOpen, onClose }) {
             <button
               type="submit"
               disabled={!canSubmit}
-              className="mt-2 inline-flex h-14 items-center justify-center gap-2 rounded-full bg-violet-600 px-7 text-sm font-black text-white shadow-xl shadow-violet-950/30 transition hover:-translate-y-0.5 hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400 disabled:shadow-none"
+              className="mt-2 inline-flex h-14 items-center justify-center gap-2 border border-zinc-700 px-7 text-xs font-bold uppercase tracking-widest text-sky-400 transition hover:border-sky-400 hover:text-white disabled:cursor-not-allowed disabled:border-zinc-900 disabled:text-zinc-700"
             >
               {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
               {mode === 'login' ? t('auth.submitLogin') : mode === 'signup' ? t('auth.submitSignup') : t('auth.submitReset')}
